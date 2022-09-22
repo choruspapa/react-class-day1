@@ -3,10 +3,6 @@ import PropTypes from "prop-types";
 import ListItem from "./listitem";
 
 class CardList extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     getLines(count) {
         return [...Array(count).keys()].map((no) => {
             return(
