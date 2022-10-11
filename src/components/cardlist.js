@@ -23,6 +23,9 @@ class CardList extends Component {
                             {this.getLines(this.props.number)}
                         </ul>
                     </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
+                    </div>
                 </div>
             </div>
         );

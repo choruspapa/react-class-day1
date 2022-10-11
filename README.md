@@ -68,3 +68,13 @@ import listitem.js into cardlist.js
 add iteration method to generate array of ListItem tag
 
 add calling of iteration method on render 
+
+## Day2
+
+```
+npm install --save-dev @babel/core @babel/preset-env @babel/preset-react
+npm install --save-dev webpack webpack-dev-server webpack-cli
+```
+
+add webpack.config.js
+
