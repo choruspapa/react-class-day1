@@ -7,9 +7,9 @@ const App = (props) => {
   
   return (
     <div className="container">
-      <h1>{props.name}</h1>
+      <h1>{props.name} 2</h1>
       <div className="row">
-        <CardList number={5}>Can you see 5 lines?</CardList>
+        <CardList number={5}>List of Contracts</CardList>
         <Counter number={5}>To increase count, click button.</Counter>
       </div>
     </div>
@@ -17,7 +17,7 @@ const App = (props) => {
 }
 
 App.defaultProps = {
-  name: "First Class"
+  name: "React Class"
 }
 
 export default App;
