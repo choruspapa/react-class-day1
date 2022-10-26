@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import CardList from './components/cardlist';
-import Counter from './components/counter';
+import CardList from './components/CardList';
+import Counter from './components/Counter';
 
 const App = (props) => {
   

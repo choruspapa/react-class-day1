@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ListItem from "./ListItem";
+import CardDetail from "./CardDetail";
 
 class CardList extends Component {
     constructor (props) {
         super(props);
         this.state = {
             keyword: '',
-            contracts: [{
+            selected: -1,
+            contacts: [{
                 name: 'Minsoo',
                 phone: '010-0001-0001'
             },{
@@ -18,7 +20,9 @@ class CardList extends Component {
                 phone: '010-0003-0003'
             }]
         }
-        this.handleFiterChange = this.handleFiterChange.bind(this);
+        this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.handleSelection = this.handleSelection.bind(this);
+        this.getContacts = this.getContacts.bind(this);
     }
 
     getLines(count) {
@@ -29,18 +33,35 @@ class CardList extends Component {
         });
     }
 
-    getContracts(data) {
+    getContacts(data) {
         if (this.state.keyword) {
-            data = data.filter((contract) => {
-                return contract.name.toLowerCase().indexOf(this.state.keyword.toLowerCase()) >= 0;
+            data = data.filter((contact) => {
+                return contact.name.toLowerCase().indexOf(this.state.keyword.toLowerCase()) >= 0;
             })
         }
-        return data.map((contract, index) => {
-            return(<ListItem contract={contract} no={index} />);
+        return data.map((contact, index) => 
+            (<ListItem key={index.toString()}
+                contact={contact} 
+                no={index} 
+                onSelect={this.handleSelection}
+            />)
+        )
+    }
+
+    getSelectedContact() {
+        if (this.state.selected < 0)
+            return ({name:"",phone:""});
+        return this.state.contacts[this.state.selected];
+    }
+
+    handleSelection(no) {
+        console.log(no + "select.");
+        this.setState({
+            selected: no
         })
     }
 
-    handleFiterChange(e) {
+    handleFilterChange(e) {
         this.setState({
             keyword: e.target.value
         });
@@ -48,6 +69,9 @@ class CardList extends Component {
 
     render() {
         let content = "col-6";
+        let status = "Not selected.";
+        if (this.state.selected > -1)
+            status = `${this.state.selected + 1}th contact selected.`;
         return (
             <div className={content}>
                 <div className="card">
@@ -60,17 +84,16 @@ class CardList extends Component {
                                 type="text"
                                 placeholder="Search Filter" 
                                 value={this.state.keyword}
-                                onChange={this.handleFiterChange}
+                                onChange={this.handleFilterChange}
                             />
                         </p>
-                        <ul class="list-group list-group-flush">
-                            {this.getContracts(this.state.contracts)}
+                        <ul className="list-group list-group-flush">
+                            {this.getContacts(this.state.contacts)}
                         </ul>
                     </div>
-                    <div class="card-footer text-muted">
-                        2 days ago
-                    </div>
+                    <div className="card-footer text-muted">{status}</div>
                 </div>
+                <CardDetail contact={this.getSelectedContact()}/>
             </div>
         );
     }
