@@ -2,13 +2,13 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ListItem from "./ListItem";
 import CardDetail from "./CardDetail";
+import { connect } from 'react-redux';
 
 class CardList extends Component {
     constructor (props) {
         super(props);
         this.state = {
             keyword: '',
-            selected: -1,
             contacts: [{
                 name: 'Minsoo',
                 phone: '010-0001-0001'
@@ -43,15 +43,15 @@ class CardList extends Component {
             (<ListItem key={index.toString()}
                 contact={contact} 
                 no={index} 
-                onSelect={this.handleSelection}
+                /* onSelect={this.handleSelection} */
             />)
         )
     }
 
     getSelectedContact() {
-        if (this.state.selected < 0)
+        if (this.props.selected < 0)
             return ({name:"",phone:""});
-        return this.state.contacts[this.state.selected];
+        return this.state.contacts[this.props.selected];
     }
 
     handleSelection(no) {
@@ -70,8 +70,8 @@ class CardList extends Component {
     render() {
         let content = "col-6";
         let status = "Not selected.";
-        if (this.state.selected > -1)
-            status = `${this.state.selected + 1}th contact selected.`;
+        if (this.props.selected > -1)
+            status = `${this.props.selected + 1}th contact selected.`;
         return (
             <div className={content}>
                 <div className="card">
@@ -108,4 +108,10 @@ CardList.defaultProps = {
     name: 'CardList'
 }
 
-export default CardList;
+const mapStateToProps = (state) => {
+    return {
+        selected: state.selectContact.no
+    }
+}
+
+export default connect(mapStateToProps)(CardList);
