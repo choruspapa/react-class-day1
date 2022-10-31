@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ListItem from "./ListItem";
 import CardDetail from "./CardDetail";
+import ContactList from "../features/contacts/ContactList";
 import { connect } from 'react-redux';
 
 class CardList extends Component {
@@ -87,9 +88,7 @@ class CardList extends Component {
                                 onChange={this.handleFilterChange}
                             />
                         </p>
-                        <ul className="list-group list-group-flush">
-                            {this.getContacts(this.state.contacts)}
-                        </ul>
+                        <ContactList />
                     </div>
                     <div className="card-footer text-muted">{status}</div>
                 </div>
@@ -114,4 +113,4 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps)(CardList);
+export default CardList;

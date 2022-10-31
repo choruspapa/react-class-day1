@@ -4,15 +4,24 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { createStore } from 'redux';
-import reducers from './reducers';
+//import { createStore } from 'redux';
+//import reducers from './reducers';
+//import sliceReducer from './features/contacts/contactSlice';
+//import { selectContact, changeFilter } from './features/contacts/contactSlice';
+import { contactApi } from './features/api/contactApi';
 import { Provider } from 'react-redux';
+import { store } from './components/Store';
 
-const store = createStore(reducers);
+//const store = createStore(reducers);
+// const store = configureStore({
+//   reducer: reducers,
+//   middleware: [],
+//   devTools: process.env.NODE_ENV !== 'production',
+// });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
+  <Provider api={contactApi} store={store}>
     <React.StrictMode>
       <App/>
     </React.StrictMode>

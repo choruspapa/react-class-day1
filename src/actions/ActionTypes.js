@@ -1,1 +1,1 @@
-export const SELECT_CONTACT = "SelectContact";
+export const SELECT_CONTACT = "SELECT_CONTACT";
