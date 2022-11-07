@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState }  from "react";
+import { PropTypes } from "prop-types";
+import { useSelector } from "react-redux";
 import { useGetAllContactsQuery } from "../api/contactApi";
-import ListItem from "../../components/ListItem";
+import { selectContactNo } from "./contactSlice";
+import Contact from "./Contact";
 
-function ContactList() {
+const ContactList = (props) => {
+    const [ keyword, setKeyword ] = useState(''); 
     const {
         data: contacts,
         isLoading,
@@ -10,7 +14,8 @@ function ContactList() {
         isError,
         error,
     } = useGetAllContactsQuery();
-    let listContent
+    const contactNo = useSelector(selectContactNo);
+    let listContent;
     if (isLoading) {
         listContent = (
             <div className="d-flex justify-content-center">
@@ -20,25 +25,57 @@ function ContactList() {
             </div>
         )
     } else if (isSuccess) {
-        console.log(contacts);
+        //const contacts = useSelector((state) => state.contacts);
+        //console.log(contacts);
         listContent = contacts.map((contact, index) => {
             return (
-                <ListItem contact={contact} no={index} />
+                <Contact contact={contact} key={index} />
             )
         })
     } else if (isError) {
         console.log(error);
         listContent = (
             <div className="alert alert-warning" role="alert">
-                {error.error}
+                ERROR: {error.error}
             </div>
         )
     }
+    const handleFilterChange = (e) => {
+        setKeyword(e.target.value);
+    }
+    let status = "Not selected.";
+    if (contactNo > -1) {
+        status = `The contact of number ${contactNo} has been selected.`;
+    }
     return (
-        <ul className="list-group list-group-flush">
-            {listContent}
-        </ul>
+        <div className="card">
+            <div className="card-body">
+                <h5 className="card-title">{props.name}</h5>
+                <p className="card-text">
+                    {props.children}
+                    <input className="form-control" 
+                        id="searchFilter" 
+                        type="text"
+                        placeholder="Search Filter" 
+                        value={keyword}
+                        onChange={handleFilterChange}
+                    />
+                </p>
+                <ul className="list-group list-group-flush">
+                    {listContent}
+                </ul>
+            </div>
+            <div className="card-footer text-muted">{status}</div>
+        </div>
     )
+}
+
+ContactList.propTypes = {
+    name: PropTypes.string,
+}
+
+ContactList.defaultProps = {
+    name: 'Contact List'
 }
 
 export default ContactList;

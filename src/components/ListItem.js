@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from 'react-redux';
-import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 class ListItem extends Component {
 
@@ -13,7 +11,9 @@ class ListItem extends Component {
 
     handleSelection() {
         //this.props.onSelect(this.props.no);
-        this.props.handleSelection(this.props.no);
+        //this.props.handleSelection(this.props.no);
+        const dispatch = useDispatch();
+        dispatch(selectContact(this.props.no));
     }
     render() {
         return(
@@ -38,10 +38,11 @@ ListItem.defaultProps = {
     onSelect: () => console.warn("onSelect not defined.")
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        handleSelection: (no) => { dispatch(actions.selectContact(no)) }
-    }
-}
+// const mapDispatchToProps = (dispatch) => {
+//     return {
+//         handleSelection: (no) => { dispatch(actions.selectContact(no)) }
+//     }
+// }
 
-export default connect(null, mapDispatchToProps)(ListItem);
+//export default connect(null, mapDispatchToProps)(ListItem);
+export default ListItem;

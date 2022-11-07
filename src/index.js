@@ -10,7 +10,7 @@ import reportWebVitals from './reportWebVitals';
 //import { selectContact, changeFilter } from './features/contacts/contactSlice';
 import { contactApi } from './features/api/contactApi';
 import { Provider } from 'react-redux';
-import { store } from './components/Store';
+import { store } from './app/store';
 
 //const store = createStore(reducers);
 // const store = configureStore({
