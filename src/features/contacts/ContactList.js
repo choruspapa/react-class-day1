@@ -7,39 +7,40 @@ import Contact from "./Contact";
 
 const ContactList = (props) => {
     const [ keyword, setKeyword ] = useState(''); 
-    const {
-        data: contacts,
-        isLoading,
-        isSuccess,
-        isError,
-        error,
-    } = useGetAllContactsQuery();
     const contactNo = useSelector(selectContactNo);
     let listContent;
-    if (isLoading) {
-        listContent = (
-            <div className="d-flex justify-content-center">
-                <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
+    switch (props.status) {
+        case "loading":
+            listContent = (
+                <div className="d-flex justify-content-center">
+                    <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
-        )
-    } else if (isSuccess) {
-        //const contacts = useSelector((state) => state.contacts);
-        //console.log(contacts);
-        listContent = contacts.map((contact, index) => {
-            return (
-                <Contact contact={contact} key={index} />
-            )
-        })
-    } else if (isError) {
-        console.log(error);
-        listContent = (
-            <div className="alert alert-warning" role="alert">
-                ERROR: {error.error}
-            </div>
-        )
+            );
+            break;
+        case "loaded":
+            listContent = props.contacts.map((contact, index) => {
+                return (
+                    <Contact contact={contact} key={index} />
+                )
+            });
+            break;
+        case "error":
+            listContent = (
+                <div className="alert alert-warning" role="alert">
+                    ERROR: {JSON.stringify(props.error?.message)}
+                </div>
+            );
+            break;
+        default:
+            listContent = (
+                <div className="d-flex justify-content-center">
+                    <span className="visually-hidden">No data...</span>
+                </div>
+            );
     }
+
     const handleFilterChange = (e) => {
         setKeyword(e.target.value);
     }

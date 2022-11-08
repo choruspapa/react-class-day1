@@ -1,53 +1,82 @@
-import React, { useState } from "react";
-import { useDispatch } from 'react-redux';
-import { useGetContactQuery } from "../api/contactApi";
-import { addContact } from "./contactSlice";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { useAddContactMutation } from "../api/contactApi";
+import { addContact, selectContactNo } from "./contactSlice";
 
-const ContactForm = ({no}) => {
-    const { data: contact, error, isLoading, isFetching } = useGetContactQuery(no, { skip: no < 0});
+const initialValue = {
+    id: 0,
+    name: '',
+    phone: '',
+}
 
-    // const [id, setId] = useState(contact.id);
-    // const [name, setName] = useState(contact.name);
-    // const [phone, setPhone] = useState(contact.phone);
-    const id = contact?contact.id:0;
-    const name = contact?contact.name:'';
-    const phone = contact?contact.phone:'';
+const ContactForm = ({no, status, error}) => {
+    //const { data: contact, error, isLoading, isFetching } = useGetContactQuery(no, { skip: no < 0});
+    const contact = useSelector((state) => {
+        let selected = state.contacts.data?
+            state.contacts.data.find((contact) => contact.id === no): 
+            initialValue;
+        if (!selected) return initialValue;
+        return selected;
+    });
+    const [ addContactApi, { isLoading }] = useAddContactMutation();    
     const dispatch = useDispatch();
+    const [ id, setId ] = useState(contact.id);
+    const [ name, setName ] = useState(contact.name);
+    const [ phone, setPhone ] = useState(contact.phone);
 
-    const handleSubmit = () => {
-        dispatch(addContact(contact));
+    useEffect(() => {
+        setId(contact.id);
+    }, [contact]);
+
+    if (isLoading) status = 'loading';
+    const handleSubmit = async () => {
+        contact.name = name;
+        contact.phone = phone;
+        try {
+            addContactApi(contact).unwrap()
+                .then((result) => {
+                    dispatch(addContact(result));
+                });
+            //dispatch(addContact(contact));
+        } catch (err) {
+            error = err;
+            status = 'error';
+        }
     };
 
     const handleIdChange = (e) => {
-        //setId(e.target.value);
+        setId(e.target.value);
     }
     const handleNameChange = (e) => {
-        //setName(e.target.value);
+        setName(e.target.value);
     }
     const handlePhoneChange = (e) => {
-        //setPhone(e.target.value);
+        setPhone(e.target.value);
     }
 
     let formContent = "";
-    if (isLoading || isFetching) {
-        console.log("loading....");
-        formContent = (
-            <div className="d-flex justify-content-center">
-                <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
+    switch (status) {
+        case "loading":
+            formContent = (
+                <div className="d-flex justify-content-center">
+                    <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
-        );
-    } else if (error) {
-        formContent = (
-            <div className="alert alert-warning" role="alert">
-                ERROR: {error.error}
-            </div>
-        )
-    } else {
-        console.log(`contact no: ${no}`);
-        formContent = (
-            <form>
+            );
+            break;
+        //case "loaded":
+        //    break;
+        case "error":
+            formContent = (
+                <div className="alert alert-warning" role="alert">
+                    ERROR: {error?.error}
+                </div>
+            )
+            break;
+        default:
+            formContent = (
+                <form>
                 <div className="form-group">
                     <label htmlFor="id">ID</label>
                     <input type="text" className="form-control" id="id" 
@@ -68,8 +97,8 @@ const ContactForm = ({no}) => {
                     <small id="phoneHelp" className="form-text text-muted">Enter you phone number.</small>
                 </div>
                 <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
-            </form>
-        )
+                </form>
+            )
     }
 
     // setId(contact.id);

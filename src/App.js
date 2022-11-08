@@ -1,13 +1,14 @@
 import React from 'react';
 import './App.css';
-import ContactMain from './features/contacts/ContactMain';
+import Contacts from './features/contacts';
+import ContactSlice from './features/contacts/contactSlice';
 
 const App = (props) => {
   
   return (
     <div className="container">
       <h1>{props.name} 3</h1>
-      <ContactMain />
+      <Contacts />
     </div>
   );
 }

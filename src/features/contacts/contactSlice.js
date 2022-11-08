@@ -24,7 +24,7 @@ const contactSlice = createSlice({
         },
         addContact: (state, action) => {
             state.data.push(action.payload);
-            console.log(state.data.length);
+            state.no = action.payload.id;
         },
     },
     extraReducers: {
