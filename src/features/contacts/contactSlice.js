@@ -6,7 +6,7 @@ export const changeFilter = createAction("changeFilter");
 
 // so, changeFilter must be in extraReducers section
 const contactSlice = createSlice({
-    name: 'contact',
+    name: 'contacts',
     initialState: {
         filter: '',
         data: [],
@@ -26,6 +26,10 @@ const contactSlice = createSlice({
             state.data.push(action.payload);
             state.no = action.payload.id;
         },
+        updateContact: (state, action) => {
+            let contact = state.data.find((contact) => contact.id === action.payload.id);
+            contact = action.payload;
+        }
     },
     extraReducers: {
         [changeFilter]: (state, action) => {
@@ -34,7 +38,7 @@ const contactSlice = createSlice({
     }
 })
 
-export const { selectContact, setContacts, addContact } = contactSlice.actions;
+export const { selectContact, setContacts, addContact, updateContact } = contactSlice.actions;
 
 export const selectContactNo = (state) => {
     //console.log(state);

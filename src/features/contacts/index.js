@@ -13,6 +13,7 @@ const Contacts = (props) => {
     const {
         data: contacts,
         isLoading,
+        isFetching,
         isSuccess,
         isError,
         error,
@@ -20,14 +21,15 @@ const Contacts = (props) => {
     useEffect(() => {
         dispatch(setContacts(contacts));
     }, [contacts]);
-    const status = isLoading?"loading":isError?"error":isSuccess?"loaded":"unloaded";
+    const status = isLoading||isFetching?"loading":isError?"error":isSuccess?"loaded":"unloaded";
+    console.log(`status: ${status}`);
     return (
       <div className="row">
         <div className="col-8">
             <ContactList contacts={contacts} status={status} error={error?.data}/>
         </div>
         <div className="col-4">
-            <ContactForm no={contactNo} status={status} error={error?.data}/>
+            <ContactForm no={contactNo} error={error?.data}/>
         </div>
       </div>
     );

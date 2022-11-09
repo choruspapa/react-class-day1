@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { useAddContactMutation } from "../api/contactApi";
-import { addContact, selectContactNo } from "./contactSlice";
+import { contactApi, useAddContactMutation, useUpdateContactMutation } from "../api/contactApi";
+import { addContact, selectContactNo, updateContact } from "./contactSlice";
 
 const initialValue = {
     id: 0,
@@ -9,16 +9,17 @@ const initialValue = {
     phone: '',
 }
 
-const ContactForm = ({no, status, error}) => {
+const ContactForm = ({no, error}) => {
     //const { data: contact, error, isLoading, isFetching } = useGetContactQuery(no, { skip: no < 0});
     const contact = useSelector((state) => {
-        let selected = state.contacts.data?
+        let selected = state.contacts.data && state.contacts.data.length > 0?
             state.contacts.data.find((contact) => contact.id === no): 
             initialValue;
         if (!selected) return initialValue;
         return selected;
     });
-    const [ addContactApi, { isLoading }] = useAddContactMutation();    
+    const [ addContactApi, { isLoading: addLoading }] = useAddContactMutation();    
+    const [ updateContactApi, { isLoading: updateLoading }] = useUpdateContactMutation();
     const dispatch = useDispatch();
     const [ id, setId ] = useState(contact.id);
     const [ name, setName ] = useState(contact.name);
@@ -26,17 +27,30 @@ const ContactForm = ({no, status, error}) => {
 
     useEffect(() => {
         setId(contact.id);
+        setName(contact.name);
+        setPhone(contact.phone);
     }, [contact]);
 
-    if (isLoading) status = 'loading';
+    let status = (addLoading || updateLoading)?'loading':'loaded';
     const handleSubmit = async () => {
-        contact.name = name;
-        contact.phone = phone;
+        const applied = {
+            id: no,
+            name: name,
+            phone: phone,
+        }
+        //console.log(applied);
         try {
-            addContactApi(contact).unwrap()
-                .then((result) => {
-                    dispatch(addContact(result));
-                });
+            if (no < 0)
+                addContactApi(applied).unwrap()
+                    .then((result) => {
+                        dispatch(addContact(result));
+                    });
+            else
+                updateContactApi(applied).unwrap()
+                    .then((result) => {
+                        dispatch(updateContact(result));
+                        //contactApi.endpoints.getAllContacts.initiate();
+                    });
             //dispatch(addContact(contact));
         } catch (err) {
             error = err;

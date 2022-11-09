@@ -20,11 +20,12 @@ const ContactList = (props) => {
             );
             break;
         case "loaded":
-            listContent = props.contacts.map((contact, index) => {
-                return (
-                    <Contact contact={contact} key={index} />
-                )
-            });
+            if (props.contacts && props.contacts.length > 0)
+                listContent = props.contacts.map((contact, index) => {
+                    return (
+                        <Contact contact={contact} key={index} />
+                    )
+                });
             break;
         case "error":
             listContent = (

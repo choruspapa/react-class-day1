@@ -1,7 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import { contactApi } from "../features/api/contactApi";
-import { selectContact } from "../features/contacts/contactSlice";
 import contactReducer from "../features/contacts/contactSlice";
 
 /**
