@@ -1,13 +1,12 @@
 import React, { useState }  from "react";
 import { PropTypes } from "prop-types";
 import { useSelector } from "react-redux";
-import { useGetAllContactsQuery } from "../api/contactApi";
-import { selectContactNo } from "./contactSlice";
+import { currentContactNo } from "./contactSlice";
 import Contact from "./Contact";
 
 const ContactList = (props) => {
     const [ keyword, setKeyword ] = useState(''); 
-    const contactNo = useSelector(selectContactNo);
+    const contactNo = useSelector(currentContactNo);
     let listContent;
     switch (props.status) {
         case "loading":

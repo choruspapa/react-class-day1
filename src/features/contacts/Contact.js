@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { selectContact, selectContactNo } from "./contactSlice";
+import { selectContact, currentContactNo } from "./contactSlice";
 
 const Contact = (props) => {
     const dispatch = useDispatch();
-    const no = useSelector(selectContactNo);
+    const no = useSelector(currentContactNo);
     const [ contact, setContact ] = useState(props.contact);
 
     return(

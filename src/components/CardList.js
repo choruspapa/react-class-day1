@@ -4,11 +4,11 @@ import ListItem from "./ListItem";
 import ContactList from "../features/contacts/ContactList";
 import ContactForm from "../features/contacts/ContactForm";
 import { useSelector } from 'react-redux';
-import { selectContactNo } from "../features/contacts/contactSlice";
+import { currentContactNo } from "../features/contacts/contactSlice";
 //import { connect } from 'react-redux';
 
 const CardList = (props) => {
-    const contactNo = useSelector(selectContactNo);
+    const contactNo = useSelector(currentContactNo);
     const [ keyword, setKeyword ] = useState(''); 
 
     const handleFilterChange = (e) => {

@@ -40,7 +40,7 @@ const contactSlice = createSlice({
 
 export const { selectContact, setContacts, addContact, updateContact } = contactSlice.actions;
 
-export const selectContactNo = (state) => {
+export const currentContactNo = (state) => {
     //console.log(state);
     return state.contacts.no;
 }
