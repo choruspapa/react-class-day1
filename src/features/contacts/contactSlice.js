@@ -27,6 +27,7 @@ const contactSlice = createSlice({
             state.no = action.payload.id;
         },
         updateContact: (state, action) => {
+            console.log(action.payload);
             let contact = state.data.find((contact) => contact.id === action.payload.id);
             contact = action.payload;
         }

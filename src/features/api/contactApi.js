@@ -14,15 +14,15 @@ export const contactApi = createApi({
             transformResponse: (result) => result.data,
         }),
         getContact: builder.query({
-            query: (contactId) => `/contacts/${contactId}`,
-            providesTags: (result) => [{ type: 'Contact', id: result.id }],
+            query: (id) => `/contacts/${id}`,
+            providesTags: (result, error) => !error?[{ type: 'Contact', id: result.id }]:[],
             transformResponse: (result) => result.data,
             async onQueryStarted(args, { dispatch, getState, queryFulfilled }) {
                 try {
                     const { data: result } = await queryFulfilled;
                     console.log(result);
                 } catch (error) {
-                    console.log(error.error);
+                    console.log(error);
                 }
             },
         }),
@@ -42,14 +42,19 @@ export const contactApi = createApi({
                 body: body,
             }),
             transformResponse: (result) => result.data,
-            invalidatesTags: [{ type: 'Contact', id: 'LIST'}],
+            invalidatesTags: (result, error, args) => !error
+                ?[{ type: 'Contact', id: result.id },{ type: 'Contact', id: 'LIST'}]
+                :[{ type: 'Contact', id: 'LIST'}],
         }),
         deleteContact: builder.mutation({
             query: (id) => ({
                 url: `/contacts/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: [{ type: 'Contact', id: 'LIST'}],
+            transformResponse: (result) => result.data,
+            invalidatesTags: (result, error, args) => !error
+                ?[{ type: 'Contact', id: result.id },{ type: 'Contact', id: 'LIST'}]
+                :[{ type: 'Contact', id: 'LIST'}],
         }),
     }),
 })

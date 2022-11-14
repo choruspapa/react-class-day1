@@ -1,14 +1,36 @@
-import React, { useState }  from "react";
+import React, { useState, useEffect }  from "react";
 import { PropTypes } from "prop-types";
-import { useSelector } from "react-redux";
-import { currentContactNo } from "./contactSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { useGetAllContactsQuery } from "../api/contactApi";
+import { currentContactNo, setContacts } from "./contactSlice";
+import * as StatusTypes from '../common/StatusTypes';
 import Contact from "./Contact";
 
 const ContactList = (props) => {
     const [ keyword, setKeyword ] = useState(''); 
     const contactNo = useSelector(currentContactNo);
+    
+    const dispatch = useDispatch();
+    const {
+        data: contacts,
+        isLoading,
+        isFetching,
+        isSuccess,
+        isError,
+        error,
+    } = useGetAllContactsQuery();
+    useEffect(() => {
+        dispatch(setContacts(contacts));
+    }, [contacts]);
+    const status = isLoading||isFetching?
+        StatusTypes.LOADING:
+        isError?
+            StatusTypes.ERROR:
+            isSuccess?
+                StatusTypes.LOADED:
+                StatusTypes.UNLOADED;
     let listContent;
-    switch (props.status) {
+    switch (status) {
         case "loading":
             listContent = (
                 <div className="d-flex justify-content-center">
@@ -19,8 +41,8 @@ const ContactList = (props) => {
             );
             break;
         case "loaded":
-            if (props.contacts && props.contacts.length > 0)
-                listContent = props.contacts.map((contact, index) => {
+            if (contacts && contacts.length > 0)
+                listContent = contacts.map((contact, index) => {
                     return (
                         <Contact contact={contact} key={index} />
                     )
@@ -29,7 +51,7 @@ const ContactList = (props) => {
         case "error":
             listContent = (
                 <div className="alert alert-warning" role="alert">
-                    ERROR: {JSON.stringify(props.error?.message)}
+                    ERROR: {JSON.stringify(error?.message)}
                 </div>
             );
             break;
@@ -44,14 +66,16 @@ const ContactList = (props) => {
     const handleFilterChange = (e) => {
         setKeyword(e.target.value);
     }
-    let status = "Not selected.";
-    if (contactNo > -1) {
-        status = `The contact of number ${contactNo} has been selected.`;
-    }
+    const statusLine = contactNo < 0
+        ?"Not selected."
+        :`The contact of number ${contactNo} has been selected.`;
+    
     return (
         <div className="card">
             <div className="card-body">
-                <h5 className="card-title">{props.name}</h5>
+                <h5 className="card-title">
+                    {props.name}
+                </h5>
                 <p className="card-text">
                     {props.children}
                     <input className="form-control" 
@@ -66,7 +90,7 @@ const ContactList = (props) => {
                     {listContent}
                 </ul>
             </div>
-            <div className="card-footer text-muted">{status}</div>
+            <div className="card-footer text-muted">{statusLine}</div>
         </div>
     )
 }
@@ -76,7 +100,7 @@ ContactList.propTypes = {
 }
 
 ContactList.defaultProps = {
-    name: 'Contact List'
+    name: 'List'
 }
 
 export default ContactList;

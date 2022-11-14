@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { 
+    useGetContactQuery,
     useAddContactMutation, 
     useUpdateContactMutation,
     useDeleteContactMutation 
 } from "../api/contactApi";
-import { addContact, selectContact } from "./contactSlice";
+import { addContact, selectContact, updateContact } from "./contactSlice";
 import * as StatusTypes from '../common/StatusTypes';
 
 const initialValue = {
@@ -15,71 +16,105 @@ const initialValue = {
 }
 
 const ContactForm = ({no}) => {
-    //const { data: contact, error, isLoading, isFetching } = useGetContactQuery(no, { skip: no < 0});
-    const contact = useSelector((state) => {
-        let selected = state.contacts.data && state.contacts.data.length > 0?
-            state.contacts.data.find((contact) => contact.id === no): 
-            initialValue;
-        if (!selected) return initialValue;
-        return selected;
-    });
+    const { data: contact, error: getError, isLoading, isFetching, isError, isUninitialized } 
+        = useGetContactQuery(no, { skip: no < 0 });
+    // const contact = useSelector((state) => {
+    //     let selected = state.contacts.data && state.contacts.data.length > 0?
+    //         state.contacts.data.find((contact) => contact.id === no): 
+    //         initialValue;
+    //     if (!selected) return initialValue;
+    //     return selected;
+    // });
     const [ addContactApi, addResult ] = useAddContactMutation();    
     const [ updateContactApi, updateResult ] = useUpdateContactMutation();
     const [ deleteContactApi, deleteResult ] = useDeleteContactMutation();
     const dispatch = useDispatch();
-    const [ id, setId ] = useState(contact.id);
-    const [ name, setName ] = useState(contact.name);
-    const [ phone, setPhone ] = useState(contact.phone);
+    const [ id, setId ] = useState(contact?contact.id:initialValue.id);
+    const [ name, setName ] = useState(contact?contact.name:initialValue.name);
+    const [ phone, setPhone ] = useState(contact?contact.phone:initialValue.phone);
+    const [ errors, setErrors ] = useState({});
 
-    let status = addResult.isLoading||updateResult.isLoading||deleteResult.isLoading
+    const status = isLoading||isFetching||addResult.isLoading||updateResult.isLoading||deleteResult.isLoading
         ?StatusTypes.LOADING
-        :addResult.isError||updateResult.isError||deleteResult.isError
+        :isError||addResult.isError||updateResult.isError||deleteResult.isError
             ?StatusTypes.ERROR
             :StatusTypes.LOADED;
-    let error = addResult.isError
-        ?addResult.error
-        :updateResult.isError
-            ?updateResult.error
-            :null;
+    //console.log(getError);
+    const error = isError?
+        getError
+        :addResult.isError
+            ?addResult.error
+            :updateResult.isError
+                ?updateResult.error
+                :null;
     //console.log(`status: ${status}. error: ${JSON.stringify(error)}`);
 
     // when get other contact, reset and initialize by new contact.
     useEffect(() => {
-        setId(contact.id);
-        setName(contact.name);
-        setPhone(contact.phone);
+        console.log(contact);
+        setErrors({});
+        setId(contact&&!isUninitialized?contact.id:initialValue.id);
+        setName(contact&&!isUninitialized?contact.name:initialValue.name);
+        setPhone(contact&&!isUninitialized?contact.phone:initialValue.phone);
         if (updateResult.isError) updateResult.reset();
         if (deleteResult.isError) deleteResult.reset();
-    }, [contact]);
+    }, [contact, isUninitialized]);
 
+    const getErrorMessage = () => {
+        const formError = Object.keys(errors).map((field, i) => {
+            if (errors[field].length > 0)
+                return (
+                    <span key={i}>{errors[field]}</span>
+                );
+        });
+        if (formError.length === 0 && !error) return '';
+        console.log(formError, error);
+        return (
+            <div className="alert alert-warning" role="alert">
+                {formError?.length > 0?formError:error?error.data.message:''}
+            </div>
+        );
+    }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors({});
         const applied = {
             id: no,
             name: name,
             phone: phone,
         }
+        if (!name || name.length === 0) {
+            setErrors({name: "Name cannot be blank."});
+            return;
+        }
+        if (!phone || phone.length === 0) {
+            setErrors({phone: "Phone cannot be blank."});
+            return;
+        }
         //console.log(applied);
-        try {
-            if (no < 0) 
-                // add one and then change number to point to added contact 
-                addContactApi(applied).unwrap()
-                    .then((result) => {
-                        dispatch(addContact(result));
-                    });
-            else {
-                updateContactApi(applied);
-                    // .unwrap()
-                    // .catch((result) => contactApi.endpoints.updateContact.initiate());
-            }
-        } catch (err) {
-            error = err;
-            status = 'error';
+        if (no < 0) 
+            // add one and then change number to point to added contact 
+            addContactApi(applied).unwrap()
+                .then((result) => {
+                    dispatch(addContact(result));
+                })
+                .catch((error) => console.log(error));
+        else {
+            updateContactApi(applied)
+                .unwrap()
+                .then(result => {
+                    console.log(result);
+                    if (!result.error)
+                        dispatch(updateContact(result));
+                })
+                .catch((error) => console.log(error));
         }
     };
 
     const handleDelete = (e) => {
-        deleteContactApi(no);
+        deleteContactApi(no).unwrap()
+            .then(result => dispatch(selectContact(-1)));
     }
 
     const handleReset = (e) => {
@@ -108,14 +143,22 @@ const ContactForm = ({no}) => {
             );
             break;
         default:
-            const errorMessage = (
-                <div className="alert alert-warning" role="alert">
-                    ERROR: {error?.data.message}
+            const buttons = (
+                <div className="btn-group" role="group" aria-label="Basic example">
+                    <button type="reset" className="btn btn-warning" onClick={handleReset}>
+                        Reset
+                    </button>
+                    <button type="submit" className={"btn btn-primary"+(error?" disabled":"")} onClick={handleSubmit}>
+                        Save
+                    </button>
+                    <button type="button" className={"btn btn-danger"+(error||no<0?" disabled":"")} onClick={handleDelete}>
+                        Delete
+                    </button>
                 </div>
             );
             formContent = (
                 <form>
-                { status==StatusTypes.ERROR?errorMessage:"" }
+                { getErrorMessage() }
                 <div className="form-group">
                     <label htmlFor="id">ID</label>
                     <input type="text" className="form-control" id="id" 
@@ -135,11 +178,7 @@ const ContactForm = ({no}) => {
                         placeholder="Enter phone number" />
                     <small id="phoneHelp" className="form-text text-muted">Enter you phone number.</small>
                 </div>
-                <div className="btn-group" role="group" aria-label="Basic example">
-                    <button type="reset" className="btn btn-warning" onClick={handleReset}>Reset</button>
-                    <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Save</button>
-                    <button type="button" className="btn btn-danger" onClick={handleDelete}>Delete</button>
-                </div>
+                {buttons}
                 </form>
             )
     }
@@ -151,7 +190,7 @@ const ContactForm = ({no}) => {
     return (
         <div className="card">
             <div className="card-body">
-                <h5>Contact</h5>
+                <h5>Form</h5>
                 {formContent}
             </div>
         </div>

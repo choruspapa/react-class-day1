@@ -1,44 +1,28 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { currentContactNo, setContacts } from "./contactSlice";
-import { useGetAllContactsQuery } from "../api/contactApi";
-import * as StatusTypes from '../common/StatusTypes';
+import { useSelector } from "react-redux";
+import { currentContactNo } from "./contactSlice";
 
 import ContactList from "./ContactList";
 import ContactForm from "./ContactForm";
+import Notification from "../../components/Notification";
 
 const Contacts = (props) => {
     const contactNo = useSelector(currentContactNo);
     console.log(contactNo);
-    const dispatch = useDispatch();
-    const {
-        data: contacts,
-        isLoading,
-        isFetching,
-        isSuccess,
-        isError,
-        error,
-    } = useGetAllContactsQuery();
-    useEffect(() => {
-        dispatch(setContacts(contacts));
-    }, [contacts]);
-    const status = isLoading||isFetching?
-        StatusTypes.LOADING:
-        isError?
-            StatusTypes.ERROR:
-            isSuccess?
-                StatusTypes.LOADED:
-                StatusTypes.UNLOADED;
-    console.log(`status: ${status}`);
     return (
-      <div className="row">
-        <div className="col-7">
-            <ContactList contacts={contacts} status={status} error={error?.data}/>
+        <div className="container">
+            <div className="container-fluid p-1 d-flex align-items-center">
+                <h4>Contact</h4> <Notification count="0" />  
+            </div>
+            <div className="row">
+                <div className="col-7">
+                    <ContactList />
+                </div>
+                <div className="col-5">
+                    <ContactForm no={contactNo} />
+                </div>
+            </div>
         </div>
-        <div className="col-5">
-            <ContactForm no={contactNo} />
-        </div>
-      </div>
     );
 }
 
