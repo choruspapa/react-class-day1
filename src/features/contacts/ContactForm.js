@@ -49,16 +49,24 @@ const ContactForm = ({no}) => {
                 :null;
     //console.log(`status: ${status}. error: ${JSON.stringify(error)}`);
 
+    const setFormValues = function(contact) {
+        setId(contact?.id);
+        setName(contact?.name);
+        setPhone(contact?.phone);
+    }
     // when get other contact, reset and initialize by new contact.
     useEffect(() => {
-        console.log(contact);
+        //console.log(contact);
         setErrors({});
-        setId(contact&&!isUninitialized?contact.id:initialValue.id);
-        setName(contact&&!isUninitialized?contact.name:initialValue.name);
-        setPhone(contact&&!isUninitialized?contact.phone:initialValue.phone);
+        setFormValues(contact&&!isUninitialized?contact:initialValue);
         if (updateResult.isError) updateResult.reset();
         if (deleteResult.isError) deleteResult.reset();
     }, [contact, isUninitialized]);
+
+    useEffect(() => {
+        //dispatch(selectContact(-1));
+        setFormValues(initialValue);
+    }, [isError]);
 
     const getErrorMessage = () => {
         const formError = Object.keys(errors).map((field, i) => {
@@ -80,7 +88,7 @@ const ContactForm = ({no}) => {
         e.preventDefault();
         setErrors({});
         const applied = {
-            id: no,
+            id: id,
             name: name,
             phone: phone,
         }
@@ -99,6 +107,7 @@ const ContactForm = ({no}) => {
                 .then((result) => {
                     dispatch(addContact(result));
                 })
+                // don't show error page when exception occurs 
                 .catch((error) => console.log(error));
         else {
             updateContactApi(applied)
@@ -115,9 +124,13 @@ const ContactForm = ({no}) => {
     const handleDelete = (e) => {
         deleteContactApi(no).unwrap()
             .then(result => dispatch(selectContact(-1)));
+            // you will see an error page calling delete api for deleted data.
+            // Call Stack: rejectionHandler
+            //.catch((error) => console.log(error));
     }
 
     const handleReset = (e) => {
+        setFormValues(initialValue);
         dispatch(selectContact(-1));
     }
 
