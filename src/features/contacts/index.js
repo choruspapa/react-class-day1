@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Routes, Route } from 'react-router-dom';
 import { currentContactNo } from "./contactSlice";
 import { contactApi, useGetNewContactsQuery } from "../api/contactApi";
 
-import ContactList from "./ContactList";
-import ContactForm from "./ContactForm";
+import ContactMain from "./ContactMain";
+import ContactView from "./ContactView";
 import Notification from "../../components/Notification";
 
 const Contacts = (props) => {
@@ -24,14 +25,10 @@ const Contacts = (props) => {
             <div className="container-fluid p-1 d-flex align-items-center">
                 <h4>Contact</h4>{notification} 
             </div>
-            <div className="row">
-                <div className="col-7">
-                    <ContactList />
-                </div>
-                <div className="col-5">
-                    <ContactForm no={contactNo} />
-                </div>
-            </div>
+            <Routes>
+                <Route path=":id" element={<ContactView />} />
+                <Route path="*" element={<ContactMain />} />
+            </Routes>
         </div>
     );
 }

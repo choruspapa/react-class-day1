@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from 'react-router-dom';
 import { selectContact, currentContactNo } from "./contactSlice";
 
 const Contact = (props) => {
@@ -9,11 +10,11 @@ const Contact = (props) => {
     const [ contact, setContact ] = useState(props.contact);
 
     return(
-        <li 
-            className="list-group-item"
-            onClick={() => dispatch(selectContact(contact.id))}
-        >
-            [{contact.id}] name: {contact.name}, phone: {contact.phone}
+        <li className="list-group-item">
+            <Link to={contact.id.toString()}>[{contact.id}]</Link>
+            <span onClick={() => dispatch(selectContact(contact.id))} >
+                name: {contact.name}, phone: {contact.phone}
+            </span>
         </li>
     );
 }
