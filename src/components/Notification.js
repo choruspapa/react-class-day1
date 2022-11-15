@@ -6,19 +6,18 @@ class Notification extends Component {
         super(props);
         this.state = {
         }
-        this.handlerEvent = this.handlerEvent.bind(this);
+        this.handlerClick = this.handlerClick.bind(this);
     }
 
-    handlerEvent(arg) {
-        this.setState({
-        });
+    handlerClick(arg) {
+        this.props.onClick(arg);
     }
 
     render(){
         return(
-            <span className="badge rounded-pill bg-primary ms-1">
+            <div className="badge rounded-pill bg-primary ms-1" onClick={this.handlerClick}>
                 {this.props.name} {this.props.count}
-            </span>
+            </div>
         );
     }
 }
@@ -26,6 +25,7 @@ class Notification extends Component {
 Notification.propTypes = {
     title: PropTypes.string,
     count: PropTypes.string,
+    onClick: PropTypes.func,
 }
 
 Notification.defaultProps = {

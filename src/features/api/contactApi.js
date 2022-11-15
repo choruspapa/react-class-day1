@@ -13,6 +13,10 @@ export const contactApi = createApi({
             providesTags: [{ type: 'Contact', id: 'LIST' }],
             transformResponse: (result) => result.data,
         }),
+        getNewContacts: builder.query({
+            query: () => '/contacts/news',
+            transformResponse: (result) => result.data,
+        }),
         getContact: builder.query({
             query: (id) => `/contacts/${id}`,
             providesTags: (result, error) => !error?[{ type: 'Contact', id: result.id }]:[],
@@ -61,6 +65,7 @@ export const contactApi = createApi({
 
 export const { 
     useGetAllContactsQuery, 
+    useGetNewContactsQuery,
     useGetContactQuery,
     useAddContactMutation,
     useUpdateContactMutation,
